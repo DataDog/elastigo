@@ -22,37 +22,37 @@ func TestSetFromUrl(t *testing.T) {
 
 	err := c.SetFromUrl("http://localhost")
 	exp := "localhost"
-	assert.T(t, c.Domain == exp && err == nil, fmt.Sprintf("Expected %s, got: %s", exp, c.Domain))
+	assert.T(t, c.domain == exp && err == nil, fmt.Sprintf("Expected %s, got: %s", exp, c.domain))
 
 	c = NewConn()
 
 	err = c.SetFromUrl("http://localhost:9200")
 	exp = "9200"
-	assert.T(t, c.Port == exp && err == nil, fmt.Sprintf("Expected %s, got: %s", exp, c.Port))
+	assert.T(t, c.port == exp && err == nil, fmt.Sprintf("Expected %s, got: %s", exp, c.port))
 
 	c = NewConn()
 
 	err = c.SetFromUrl("http://localhost:9200")
 	exp = "localhost"
-	assert.T(t, c.Domain == exp && err == nil, fmt.Sprintf("Expected %s, got: %s", exp, c.Domain))
+	assert.T(t, c.domain == exp && err == nil, fmt.Sprintf("Expected %s, got: %s", exp, c.domain))
 
 	c = NewConn()
 
 	err = c.SetFromUrl("http://someuser@localhost:9200")
 	exp = "someuser"
-	assert.T(t, c.Username == exp && err == nil, fmt.Sprintf("Expected %s, got: %s", exp, c.Username))
+	assert.T(t, c.username == exp && err == nil, fmt.Sprintf("Expected %s, got: %s", exp, c.username))
 
 	c = NewConn()
 
 	err = c.SetFromUrl("http://someuser:password@localhost:9200")
 	exp = "password"
-	assert.T(t, c.Password == exp && err == nil, fmt.Sprintf("Expected %s, got: %s", exp, c.Password))
+	assert.T(t, c.password == exp && err == nil, fmt.Sprintf("Expected %s, got: %s", exp, c.password))
 
 	c = NewConn()
 
 	err = c.SetFromUrl("http://someuser:password@localhost:9200")
 	exp = "someuser"
-	assert.T(t, c.Username == exp && err == nil, fmt.Sprintf("Expected %s, got: %s", exp, c.Username))
+	assert.T(t, c.username == exp && err == nil, fmt.Sprintf("Expected %s, got: %s", exp, c.username))
 
 	c = NewConn()
 

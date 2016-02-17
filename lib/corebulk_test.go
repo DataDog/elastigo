@@ -76,6 +76,7 @@ func TestBulkIndexerBasic(t *testing.T) {
 		buffers        = NewSharedBuffer()
 		totalBytesSent int
 		messageSets    int
+		mu             sync.RWMutex
 	)
 
 	InitTests(true)
@@ -85,10 +86,12 @@ func TestBulkIndexerBasic(t *testing.T) {
 
 	indexer := c.NewBulkIndexer(3)
 	indexer.Sender = func(buf *bytes.Buffer) error {
+		mu.Lock()
 		messageSets += 1
 		totalBytesSent += buf.Len()
 		buffers.Append(buf)
-		//log.Printf("buffer:%s", string(buf.Bytes()))
+		mu.Unlock()
+		// log.Printf("buffer:%s", string(buf.Bytes()))
 		return indexer.Send(buf)
 	}
 	indexer.Start()
@@ -102,6 +105,8 @@ func TestBulkIndexerBasic(t *testing.T) {
 
 	err := indexer.Index(testIndex, "user", "1", "", "", &date, data)
 	waitFor(func() bool {
+		mu.RLock()
+		defer mu.RUnlock()
 		return buffers.Length() > 0
 	}, 5)
 
@@ -134,7 +139,7 @@ func TestRefreshParam(t *testing.T) {
 	requrlChan := make(chan *url.URL, 1)
 	InitTests(true)
 	c := NewTestConn()
-	c.RequestTracer = func(method, urlStr, body string) {
+	c.requestTracer = func(method, urlStr, body string) {
 		requrl, _ := url.Parse(urlStr)
 		requrlChan <- requrl
 	}
@@ -161,7 +166,7 @@ func TestWithoutRefreshParam(t *testing.T) {
 	requrlChan := make(chan *url.URL, 1)
 	InitTests(true)
 	c := NewTestConn()
-	c.RequestTracer = func(method, urlStr, body string) {
+	c.requestTracer = func(method, urlStr, body string) {
 		requrl, _ := url.Parse(urlStr)
 		requrlChan <- requrl
 	}
@@ -193,7 +198,7 @@ func XXXTestBulkUpdate(t *testing.T) {
 
 	InitTests(true)
 	c := NewTestConn()
-	c.Port = "9200"
+	c.SetPort("9200")
 	indexer := c.NewBulkIndexer(3)
 	indexer.Sender = func(buf *bytes.Buffer) error {
 		messageSets += 1
@@ -305,9 +310,9 @@ func TestBulkDelete(t *testing.T) {
 func XXXTestBulkErrors(t *testing.T) {
 	// lets set a bad port, and hope we get a conn refused error?
 	c := NewTestConn()
-	c.Port = "27845"
+	c.SetPort("27845")
 	defer func() {
-		c.Port = "9200"
+		c.SetPort("9200")
 	}()
 	indexer := c.NewBulkIndexerErrors(10, 1)
 	indexer.Start()

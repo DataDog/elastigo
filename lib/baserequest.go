@@ -57,7 +57,7 @@ func (c *Conn) DoCommand(method string, url string, args map[string]interface{},
 	//log.Println(fmt.Sprintf("\n========= req:\nURL: %s\n%s", req.URL, bytes.NewBuffer(reqbuf).String()))
 
 	// Copy request body for tracer
-	if c.RequestTracer != nil {
+	if c.requestTracer != nil {
 		rbody := ""
 		if req.Body != nil {
 			requestBody, err := ioutil.ReadAll(req.Body)
@@ -68,7 +68,7 @@ func (c *Conn) DoCommand(method string, url string, args map[string]interface{},
 			req.SetBody(bytes.NewReader(requestBody))
 			rbody = string(requestBody)
 		}
-		c.RequestTracer(req.Method, req.URL.String(), rbody)
+		c.requestTracer(req.Method, req.URL.String(), rbody)
 	}
 
 	httpStatusCode, body, err = req.Do(&response)
